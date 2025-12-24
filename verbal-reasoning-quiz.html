@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verbal Reasoning Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a4d6d;
+            --accent: #d4af37;
+            --correct: #2d5f3f;
+            --incorrect: #8b2e2e;
+            --text: #2c2c2c;
+            --bg: #fdfdf8;
+            --passage-bg: #f8f6f0;
+            --border: #d4c5a9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Sans 3', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(26, 77, 109, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #2d6a8f 100%);
+            color: white;
+            padding: 30px 40px;
+            border-bottom: 4px solid var(--accent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-left p {
+            opacity: 0.95;
+            font-size: 1.05em;
+        }
+
+        .question-counter {
+            text-align: right;
+            font-size: 1.1em;
+            font-weight: 600;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .question-counter .current {
+            font-size: 1.8em;
+            font-family: 'Playfair Display', serif;
+            color: var(--accent);
+        }
+
+        .content-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: 600px;
+        }
+
+        .passage-section {
+            background: var(--passage-bg);
+            padding: 40px;
+            border-right: 3px solid var(--border);
+            position: relative;
+        }
+
+        .passage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--accent);
+        }
+
+        .passage-section h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            font-size: 1.6em;
+            margin: 0;
+        }
+
+        .explain-btn {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-family: 'Source Sans 3', sans-serif;
+        }
+
+        .explain-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .explain-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .explanation-box {
+            display: none;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border: 2px solid #1976d2;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        .explanation-box.visible {
+            display: block;
+        }
+
+        .explanation-box h3 {
+            color: #1565c0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .explanation-box p {
+            color: #0d47a1;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .passage {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .passage p {
+            margin-bottom: 16px;
+            font-size: 1.05em;
+            text-align: justify;
+        }
+
+        .source {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+        }
+
+        .questions-section {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .question-block {
+            padding: 25px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15);
+        }
+
+        .question-number {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .question-text {
+            font-size: 1.15em;
+            margin-bottom: 24px;
+            font-weight: 600;
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 1.05em;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: var(--primary);
+            background: #f8fbfd;
+            transform: translateX(4px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 14px;
+            cursor: pointer;
+            width: 22px;
+            height: 22px;
+            accent-color: var(--primary);
+        }
+
+        .option.selected {
+            border-color: var(--primary);
+            background: #f0f7ff;
+            font-weight: 600;
+        }
+
+        .option.correct {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            border-color: var(--correct);
+            font-weight: 600;
+        }
+
+        .option.incorrect {
+            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
+            border-color: var(--incorrect);
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 18px 22px;
+            border-radius: 6px;
+            font-size: 1em;
+            line-height: 1.6;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+
+        .feedback.visible {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 4px solid var(--correct);
+            color: var(--correct);
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 4px solid var(--incorrect);
+            color: var(--incorrect);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary) 0%, #2d6a8f 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1.05em;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(26, 77, 109, 0.3);
+            font-family: 'Source Sans 3', sans-serif;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 16px rgba(26, 77, 109, 0.4);
+        }
+
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .nav-btn.submit-btn {
+            background: linear-gradient(135deg, var(--accent) 0%, #b8941f 100%);
+        }
+
+        .results-section {
+            padding: 40px;
+            background: var(--passage-bg);
+            border-top: 3px solid var(--border);
+            text-align: center;
+            display: none;
+        }
+
+        .results-section.visible {
+            display: block;
+        }
+
+        .results {
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            border: 3px solid var(--accent);
+            font-size: 1.2em;
+            font-weight: 600;
+            color: var(--primary);
+            animation: slideIn 0.5s ease;
+        }
+
+        .results-grade {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2em;
+            margin-top: 12px;
+            color: var(--accent);
+        }
+
+        .results-breakdown {
+            margin-top: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .result-stat {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+        }
+
+        .result-stat .number {
+            font-size: 2em;
+            font-family: 'Playfair Display', serif;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .result-stat .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1024px) {
+            .content-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .passage-section {
+                border-right: none;
+                border-bottom: 3px solid var(--border);
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 16px;
+            }
+
+            .question-counter {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 24px;
+            }
+
+            .header-left h1 {
+                font-size: 1.6em;
+            }
+
+            .passage-section,
+            .questions-section {
+                padding: 24px;
+            }
+
+            .passage {
+                padding: 20px;
+            }
+
+            .navigation {
+                flex-direction: column;
+            }
+
+            .passage-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .explain-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-left">
+                <h1>Verbal Reasoning</h1>
+                <p>Read the passage carefully and answer each question</p>
+            </div>
+            <div class="question-counter">
+                Question <span class="current" id="currentQ">1</span> of <span id="totalQ">10</span>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="passage-section">
+                <div class="passage-header">
+                    <h2>Reading Passage</h2>
+                    <button class="explain-btn" id="explainBtn">💡 Explain Answer</button>
+                </div>
+
+                <div class="explanation-box" id="explanationBox">
+                    <h3>Answer Explanation</h3>
+                    <p id="explanationText">Select an answer and click "Check Answer" to see the explanation.</p>
+                </div>
+
+                <div class="passage" id="passageContent">
+                    <!-- Passage loaded dynamically -->
+                </div>
+            </div>
+
+            <div class="questions-section">
+                <div id="questionContainer">
+                    <!-- Questions loaded dynamically -->
+                </div>
+
+                <div class="navigation">
+                    <button class="nav-btn" id="prevBtn" disabled>← Previous</button>
+                    <button class="nav-btn" id="checkBtn">Check Answer</button>
+                    <button class="nav-btn" id="nextBtn">Next →</button>
+                    <button class="nav-btn submit-btn" id="submitBtn" style="display: none;">Submit Quiz</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <div class="results">
+                <div id="resultsText"></div>
+                <div class="results-grade" id="resultsGrade"></div>
+                <div class="results-breakdown">
+                    <div class="result-stat">
+                        <div class="number" id="correctCount">0</div>
+                        <div class="label">Correct</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="number" id="incorrectCount">0</div>
+                        <div class="label">Incorrect</div>
+                    </div>
+                    <div class="result-stat">
+                        <div class="number" id="percentageScore">0%</div>
+                        <div class="label">Score</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizData = {
+            passage: `
+                <p>As a child, Manolo Dehate often saw strange men with dogs in the mountains near his house in Sarrión, a town in the Teruel province of Aragón in Spain. They were hunting the abundant wild truffles. In the 1980s, while visiting a plantation in Teruel to cultivate truffle-producing oak trees:</p>
+
+                <p>"People thought he was crazy," says Simona, his daughter. Little was known about how to farm the fungus. It takes around 10 years for the trees to produce. But it worked. Today Teruel is the world's biggest producer of Tuber melanosporum, or black truffles.</p>
+
+                <p>Production from France's Périgord region, previously the biggest producer, has plummeted over the past century, as farmers switched to easier crops. Truffle farmers must inoculate the fungus to young trees and replant each decade as the truffles die off. Most experts believe young trees produce the best truffles, so locals have bet everything on the black diamonds. Production has enriched farmers. Black truffles fetch up to €700 per kilogram. And it has halted depopulation. Sarrión's population has held steady even as Aragón's has fallen.</p>
+
+                <p>"Teruel is enjoying its international recognition," says Daniel Brito, head of Teruel's truffle-farming association. Périgord truffles are still the gold standard. Mr Brito hopes to win a "geographical indication", like those for champagne or Parma ham, before the next season starts. Another challenge is that Spaniards rarely eat truffles. They were banned during the Spanish Inquisition (1478 to 1834 AD) as a poison from hell. To revive, however, they are a gift from heaven.</p>
+
+                <p class="source">Source: The Economist, August 15 2024</p>
+            `,
+            questions: [
+                {
+                    text: "According to the passage, Teruel is known for:",
+                    options: [
+                        "the notable quality of its soil",
+                        "the increasing consumption of truffles",
+                        "its high production of black truffles",
+                        "the premium price of truffles"
+                    ],
+                    correct: 2,
+                    explanation: "The passage clearly states 'Today Teruel is the world's biggest producer of Tuber melanosporum, or black truffles.'"
+                },
+                {
+                    text: "What was Manolo Dehate's daughter's reaction to his truffle farming venture?",
+                    options: [
+                        "She thought it was a practical business decision",
+                        "She reported that others viewed him as irrational",
+                        "She was concerned about the 10-year wait time",
+                        "She believed Teruel would become the world leader"
+                    ],
+                    correct: 1,
+                    explanation: "Simona, his daughter, says 'People thought he was crazy,' indicating others viewed him as irrational."
+                },
+                {
+                    text: "Why has production from France's Périgord region declined?",
+                    options: [
+                        "Farmers found truffle cultivation too difficult and switched to easier crops",
+                        "The soil quality deteriorated over the past century",
+                        "Spanish truffles became more popular in international markets",
+                        "The region lost its geographical indication status"
+                    ],
+                    correct: 0,
+                    explanation: "The passage states 'Production from France's Périgord region...has plummeted over the past century, as farmers switched to easier crops.'"
+                },
+                {
+                    text: "According to the passage, what challenge do truffle farmers face?",
+                    options: [
+                        "Finding suitable oak trees for inoculation",
+                        "The need to replant trees every decade as truffles die off",
+                        "Competition from French truffle farmers",
+                        "Declining truffle prices in international markets"
+                    ],
+                    correct: 1,
+                    explanation: "The passage mentions 'Truffle farmers must inoculate the fungus to young trees and replant each decade as the truffles die off.'"
+                },
+                {
+                    text: "What impact has truffle farming had on Sarrión's population?",
+                    options: [
+                        "It has caused significant population growth",
+                        "It has prevented population decline while Aragón's population fell",
+                        "It has reversed the depopulation trend across all of Aragón",
+                        "It has attracted farmers from the Périgord region"
+                    ],
+                    correct: 1,
+                    explanation: "The passage says 'Sarrión's population has held steady even as Aragón's has fallen,' showing it prevented decline while the region lost population."
+                },
+                {
+                    text: "What does Daniel Brito hope to achieve before the next season?",
+                    options: [
+                        "Increase truffle production to exceed Périgord",
+                        "Obtain a geographical indication for Teruel truffles",
+                        "Promote truffle consumption among Spaniards",
+                        "Export truffles to international markets"
+                    ],
+                    correct: 1,
+                    explanation: "Daniel Brito 'hopes to win a geographical indication, like those for champagne or Parma ham, before the next season starts.'"
+                },
+                {
+                    text: "According to the passage, why do Spaniards rarely eat truffles?",
+                    options: [
+                        "They are too expensive for most Spanish consumers",
+                        "They were historically banned as poisonous during the Spanish Inquisition",
+                        "Spanish cuisine traditionally does not incorporate truffles",
+                        "Most production is exported to other countries"
+                    ],
+                    correct: 1,
+                    explanation: "The passage explains 'They were banned during the Spanish Inquisition (1478 to 1834 AD) as a poison from hell.'"
+                },
+                {
+                    text: "Which statement best reflects the passage's information about truffle prices?",
+                    options: [
+                        "Truffle prices have remained stable over the past century",
+                        "Black truffles can sell for up to €700 per kilogram",
+                        "Périgord truffles are more expensive than Teruel truffles",
+                        "Truffle prices are declining due to oversupply"
+                    ],
+                    correct: 1,
+                    explanation: "The passage states 'Black truffles fetch up to €700 per kilogram.'"
+                },
+                {
+                    text: "What does the passage suggest about Périgord truffles' current status?",
+                    options: [
+                        "They are no longer considered high quality",
+                        "They remain the gold standard despite reduced production",
+                        "They have lost their geographical indication",
+                        "They are now primarily grown in Spain"
+                    ],
+                    correct: 1,
+                    explanation: "Despite production decline, 'Périgord truffles are still the gold standard,' according to the passage."
+                },
+                {
+                    text: "How long does it typically take for truffle-producing trees to yield truffles?",
+                    options: [
+                        "5 years",
+                        "10 years",
+                        "A decade after replanting",
+                        "One century"
+                    ],
+                    correct: 1,
+                    explanation: "The passage explicitly states 'It takes around 10 years for the trees to produce.'"
+                }
+            ]
+        };
+
+        let currentQuestion = 0;
+        let userAnswers = new Array(quizData.questions.length).fill(null);
+        let checkedQuestions = new Array(quizData.questions.length).fill(false);
+        const letters = ['A', 'B', 'C', 'D'];
+
+        // Load passage
+        document.getElementById('passageContent').innerHTML = quizData.passage;
+
+        function loadQuestion(index) {
+            const q = quizData.questions[index];
+            const container = document.getElementById('questionContainer');
+            
+            let optionsHTML = '';
+            q.options.forEach((opt, idx) => {
+                const value = letters[idx];
+                const isChecked = userAnswers[index] === value;
+                const isDisabled = checkedQuestions[index];
+                const correctValue = letters[q.correct];
+                
+                let optionClass = 'option';
+                if (isDisabled) {
+                    if (value === correctValue) {
+                        optionClass = 'option correct disabled';
+                    } else if (userAnswers[index] === value) {
+                        optionClass = 'option incorrect disabled';
+                    } else {
+                        optionClass = 'option disabled';
+                    }
+                } else if (isChecked) {
+                    optionClass = 'option selected';
+                }
+                
+                optionsHTML += `
+                    <label class="${optionClass}">
+                        <input type="radio" name="question${index}" value="${value}" 
+                            ${isChecked ? 'checked' : ''} 
+                            ${isDisabled ? 'disabled' : ''}>
+                        <span>${opt}</span>
+                    </label>
+                `;
+            });
+
+            let feedbackHTML = '';
+            if (checkedQuestions[index]) {
+                const isCorrect = userAnswers[index] === letters[q.correct];
+                feedbackHTML = `
+                    <div class="feedback ${isCorrect ? 'correct' : 'incorrect'} visible">
+                        ${isCorrect ? '✓ Correct!' : '✗ Incorrect.'} ${q.explanation}
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="question-block">
+                    <div class="question-number">Question ${index + 1}</div>
+                    <div class="question-text">${q.text}</div>
+                    <div class="options">
+                        ${optionsHTML}
+                    </div>
+                    ${feedbackHTML}
+                </div>
+            `;
+
+            // Add event listeners
+            container.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    userAnswers[index] = this.value;
+                    container.querySelectorAll('.option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.closest('.option').classList.add('selected');
+                });
+            });
+
+            // Update navigation
+            document.getElementById('currentQ').textContent = index + 1;
+            document.getElementById('prevBtn').disabled = index === 0;
+            
+            if (index === quizData.questions.length - 1) {
+                document.getElementById('nextBtn').style.display = 'none';
+                document.getElementById('submitBtn').style.display = 'block';
+            } else {
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('submitBtn').style.display = 'none';
+            }
+
+            // Update check button
+            if (checkedQuestions[index]) {
+                document.getElementById('checkBtn').textContent = 'Checked ✓';
+                document.getElementById('checkBtn').disabled = true;
+            } else {
+                document.getElementById('checkBtn').textContent = 'Check Answer';
+                document.getElementById('checkBtn').disabled = false;
+            }
+
+            // Update explanation
+            if (checkedQuestions[index]) {
+                updateExplanation(index);
+            } else {
+                document.getElementById('explanationBox').classList.remove('visible');
+                document.getElementById('explainBtn').classList.remove('active');
+            }
+        }
+
+        function updateExplanation(index) {
+            const q = quizData.questions[index];
+            const isCorrect = userAnswers[index] === letters[q.correct];
+            document.getElementById('explanationText').innerHTML = `
+                <strong>${isCorrect ? 'Correct!' : 'Incorrect.'}</strong><br>
+                The correct answer is <strong>${letters[q.correct]}</strong>.<br><br>
+                ${q.explanation}
+            `;
+        }
+
+        document.getElementById('checkBtn').addEventListener('click', function() {
+            if (userAnswers[currentQuestion] === null) {
+                alert('Please select an answer before checking.');
+                return;
+            }
+            checkedQuestions[currentQuestion] = true;
+            loadQuestion(currentQuestion);
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', function() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', function() {
+            if (currentQuestion < quizData.questions.length - 1) {
+                currentQuestion++;
+                loadQuestion(currentQuestion);
+            }
+        });
+
+        document.getElementById('explainBtn').addEventListener('click', function() {
+            const explanationBox = document.getElementById('explanationBox');
+            const isVisible = explanationBox.classList.contains('visible');
+            
+            if (isVisible) {
+                explanationBox.classList.remove('visible');
+                this.classList.remove('active');
+            } else {
+                if (checkedQuestions[currentQuestion]) {
+                    updateExplanation(currentQuestion);
+                }
+                explanationBox.classList.add('visible');
+                this.classList.add('active');
+            }
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', function() {
+            const unanswered = userAnswers.filter(a => a === null).length;
+            if (unanswered > 0) {
+                alert(`Please answer all questions before submitting. ${unanswered} question(s) remaining.`);
+                return;
+            }
+
+            let correct = 0;
+            quizData.questions.forEach((q, i) => {
+                if (userAnswers[i] === letters[q.correct]) correct++;
+            });
+
+            const percentage = Math.round((correct / quizData.questions.length) * 100);
+            let grade = '';
+            if (percentage >= 90) grade = 'Outstanding!';
+            else if (percentage >= 80) grade = 'Excellent!';
+            else if (percentage >= 70) grade = 'Very Good!';
+            else if (percentage >= 60) grade = 'Good';
+            else grade = 'Keep Practicing!';
+
+            document.getElementById('correctCount').textContent = correct;
+            document.getElementById('incorrectCount').textContent = quizData.questions.length - correct;
+            document.getElementById('percentageScore').textContent = percentage + '%';
+            document.getElementById('resultsText').textContent = `You scored ${correct} out of ${quizData.questions.length} questions correctly`;
+            document.getElementById('resultsGrade').textContent = `${percentage}% - ${grade}`;
+
+            document.getElementById('resultsSection').classList.add('visible');
+            document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Initialize
+        document.getElementById('totalQ').textContent = quizData.questions.length;
+        loadQuestion(0);
+    </script>
+</body>
+</html>
